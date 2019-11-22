@@ -25,8 +25,160 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>
+					<h1>Una más de migraciones</h1>
+				</section>
+				<section>
+					<h2>¿Quién soy?</h2>
+					<p>
+						Carlos Reig Matut <br>
+						The Byte Flow
+					</p>
+
+					<p>
+						<a href="https://twitter.com/unstatu">@unstatu</a><br>
+						<a href="http://drupal.org/u/unstatu">drupal.org/u/unstatu</a>
+					</p>
+					<aside class="notes">
+						Ingeniero informático por la UV <br>
+						Miembro en Drupal.org desde hace 6 años<br>
+						Vía más rápida para contactar conmigo : Rocket Chat<br>
+					</aside>
+				</section>
+				<section>
+					<h2>Índice</h2>
+
+					<ul>
+						<li>Introducción y contexto</li>
+						<li>Presentación de los actores</li>
+						<li>Demo</li>
+						<li>Nivel pro</li>
+						<li>Recursos</li>
+						<li>Dudas</li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h1>Introducción y contexto</h1>
+					</section>
+
+					<section data-markdown>
+						<textarea data-template>
+							> Una migración consiste en llevar los datos de un sitio A a un sitio B
+							>
+							> Firmado: Capitán Obvio
+
+
+						</textarea>
+					</section>
+					<section>
+						<img src="/lib/img/d7-eol.png" alt="">
+
+						<aside class="notes">
+							No siempre se tiene que migrar a Drupal 8. Hay alternativas como Backdrop
+						</aside>
+					</section>
+					<section data-markdown>
+						<textarea data-template>
+							### Experiencia basada en una migración de Drupal 7 a Drupal 8
+
+							Características del Drupal 7:
+
+							* 15ks de usuarios
+							* 31ks de archivos
+							* 36ks de nodos
+							* 17ks de términos de taxonomías
+							* 72 taxonomías
+							* 39 tipos de contenido
+							* Módulos sin versión para Drupal 8
+						</textarea>
+					</section>
+
+					<section data-markdown>
+						<textarea data-template>
+							# Motivación de la charla
+						</textarea>
+					</section>
+
+					<section>
+						<img src="/lib/img/d8-migrate-etl-process.png" alt="">
+
+						<aside class="notes">
+							Charlas muy teóricas sobre cómo hacer la migración.
+						</aside>
+					</section>
+				</section>
+				<section>
+					<section data-markdown>
+						<textarea data-template>
+							# Presentación de los actores
+						</textarea>
+					</section>
+					<section>
+						<h1>Drupal 7 en el papel de...</h1>
+					</section>
+
+					<section>
+						<img src="/lib/img/pp.jpg" alt="">
+					</section>
+
+					<section>
+						<h1>Drupal 8 en el papel de...</h1>
+					</section>
+					<section>
+						<img src="/lib/img/dh.jpg" alt="">
+					</section>
+
+					<section>
+						<h1>Migrate & Company en el papel de...</h1>
+					</section>
+					<section>
+						<img src="/lib/img/dh.jpg" alt="">
+					</section>
+
+					<section>
+						<h1>Archivos YML en el papel de...</h1>
+					</section>
+					<section>
+						<img src="/lib/img/jb.png" alt="">
+					</section>
+					<section data-markdown>
+						<textarea data-template>
+							# ¿Que tener en cuenta antes de empezar?
+
+							* Entender la estructura y la lógica del Drupal 7
+							  * Tipos de contenido, taxonomías, vistas, roles, etc.
+							  * Listado de módulos con su correspondencia en Drupal 8
+							* Copiar o reestructurar el nuevo Drupal 8
+						</textarea>
+					</section>
+					<section data-markdown>
+						<textarea data-template>
+							# ¿Qué necesitamos antes de empezar?
+
+							* Un Drupal 8 instalado.
+							* Un módulo custom específico para gestionar el código de la migración
+							* Set de módulos: migrate, migrate_drupal, migrate_plus, migrate_tools
+							* Drupal 8 necesita "ver" a Drupal 7
+						</textarea>
+					</section>
+					<section>
+						/web/sites/default/settings.php
+						<pre><code class="hljs php">
+$databases['migrate']['default'] = [
+  'database' => 'drupal7_db',
+  'username' => 'root',
+  'password' => '123',
+  'prefix' => '',
+  'host' => 'db',
+  'port' => '3306',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+  'driver' => 'mysql',
+];
+
+						</code></pre>
+					</section>
+				</section>
 			</div>
 		</div>
 
