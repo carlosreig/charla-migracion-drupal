@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Una más de migraciones</title>
 
 		<link rel="stylesheet" href="css/reset.css">
 		<link rel="stylesheet" href="css/reveal.css">
@@ -52,7 +52,7 @@
 						<li>Introducción y contexto</li>
 						<li>Presentación de los actores</li>
 						<li>Demo</li>
-						<li>Nivel pro</li>
+						<li>Quiero saber más</li>
 						<li>Recursos</li>
 						<li>Dudas</li>
 					</ul>
@@ -64,11 +64,14 @@
 
 					<section data-markdown>
 						<textarea data-template>
-							> Una migración consiste en llevar los datos de un sitio A a un sitio B
+							> Una migración consiste en llevar los datos y funcionalidades de un sitio A a un sitio B
 							>
 							> Firmado: Capitán Obvio
 
+							<aside class="notes">
 
+							¿Por qué alguien querría migrar de Drupal 7 a Drupal 8?
+							</aside>
 						</textarea>
 					</section>
 					<section>
@@ -133,7 +136,7 @@
 						<h1>Migrate & Company en el papel de...</h1>
 					</section>
 					<section>
-						<img src="/lib/img/dh.jpg" alt="">
+						<img src="/lib/img/pb.jpg" alt="">
 					</section>
 
 					<section>
@@ -151,12 +154,29 @@
 							  * Listado de módulos con su correspondencia en Drupal 8
 							* Copiar o reestructurar el nuevo Drupal 8
 						</textarea>
+						<aside class="notes">
+							Migrar con migrate es lo mismo que hacerlo a mano pero usando herramientas
+						</aside>
+					</section>
+					<section data-markdown>
+						<textarea data-template>
+							Tenemos un Drupal 7 con 2 tipos de contenido:
+
+							* Actores
+							* Películas
+
+							También tenemos una taxonomías:
+
+							* Categoría de película
+
+							También tenemos usuarios.
+						</textarea>
 					</section>
 					<section data-markdown>
 						<textarea data-template>
 							# ¿Qué necesitamos antes de empezar?
 
-							* Un Drupal 8 instalado.
+							* Un Drupal 8 instalado y estructurado
 							* Un módulo custom específico para gestionar el código de la migración
 							* Set de módulos: migrate, migrate_drupal, migrate_plus, migrate_tools
 							* Drupal 8 necesita "ver" a Drupal 7
@@ -174,10 +194,541 @@ $databases['migrate']['default'] = [
   'port' => '3306',
   'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
   'driver' => 'mysql',
-];
+];						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>Migraremos las películas</h1>
+
+						<ul>
+							<li>Creamos la migración: un archivo YML</li>
+						</ul>
+					</section>
+					<section>
+						<h1><strong>IMPORTANTE:</strong><br>Las migraciones son configuración</h1>
+					</section>
+					<section>
+						www/web/modules/custom/charla_demo/config/install/migrate_plus.migration.upgrade_d7_node_pelicula.yml
+						<pre><code class="hljs yml">
+id: upgrade_drupal_7_node_peliculas
+label: Node (Peliculas)
+migration_tags:
+  - Drupal 7
+  - Content
+source:
+  plugin: d7_node
+  node_type: peliculas
+process:
+  nid: tnid
+  vid: vid
+  langcode:
+    plugin: default_value
+    source: language
+    default_value: "und"
+  title: title
+  uid: node_uid
+  status: status
+  created: created
+  changed: changed
+  promote: promote
+  sticky: sticky
+  revision_uid: revision_uid
+  revision_log: log
+  revision_timestamp: timestamp
+  body:
+    -
+      plugin: get
+      source: body
+  field_categor_a:
+    -
+      plugin: sub_process
+      source: field_categor_a
+      process:
+        target_id: tid
+  field_continuaci_n_de:
+    -
+      plugin: get
+      source: field_continuaci_n_de
+  field_cartel:
+    -
+      plugin: sub_process
+      source: field_cartel
+      process:
+        target_id: fid
+        alt: alt
+        title: title
+        width: width
+        height: height
+destination:
+  plugin: 'entity:node'
+  default_bundle: peliculas
+migration_dependencies:
+  required: {}
+  optional: {}
 
 						</code></pre>
 					</section>
+					<section>
+						<pre><code class="hljs bash">
+drush migrate-import upgrade_drupal_7_node_peliculas
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/error-import.png" alt="">
+					</section>
+					<section>
+						<h1><strong>IMPORTANTE:</strong><br>Las migraciones son configuración</h1>
+					</section>
+					<section>
+						<pre><code class="hljs bash">
+drush en charla_demo
+drush migrate-import upgrade_drupal_7_node_peliculas
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/zero-migrated.png" alt="">
+					</section>
+					<section>
+						Que raro...
+
+						<pre>
+							<code class="hljs bash">
+drush migrate-messages upgrade_drupal_7_node_peliculas
+							</code>
+						</pre>
+					</section>
+					<section>
+						<img src="/lib/img/zero-messages.png" alt="">
+					</section>
+					<section>
+												<pre><code class="hljs yml">
+id: upgrade_drupal_7_node_pelicula
+label: Node (Peliculas)
+migration_tags:
+  - Drupal 7
+  - Content
+source:
+  plugin: d7_node
+  node_type: pelicula
+process:
+  nid: tnid
+  vid: vid
+  langcode:
+    plugin: default_value
+    source: language
+    default_value: "und"
+  title: title
+  uid: node_uid
+  status: status
+  created: created
+  changed: changed
+  promote: promote
+  sticky: sticky
+  revision_uid: revision_uid
+  revision_log: log
+  revision_timestamp: timestamp
+  body:
+    -
+      plugin: get
+      source: body
+  field_categor_a:
+    -
+      plugin: sub_process
+      source: field_categor_a
+      process:
+        target_id: tid
+  field_continuaci_n_de:
+    -
+      plugin: get
+      source: field_continuaci_n_de
+  field_cartel:
+    -
+      plugin: sub_process
+      source: field_cartel
+      process:
+        target_id: fid
+        alt: alt
+        title: title
+        width: width
+        height: height
+destination:
+  plugin: 'entity:node'
+  default_bundle: pelicula
+migration_dependencies:
+  required: {}
+  optional: {}
+
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/zero-migrated.png" alt="">
+					</section>
+					<section>
+						<h1><strong>IMPORTANTE:</strong><br>Las migraciones son configuración</h1>
+					</section>
+					<section>
+						<pre><code class="hljs bash">
+drush pmu charla_demo && drush en charla_demo
+drush migrate-import upgrade_drupal_7_node_peliculas
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/error-migration-exists.png" alt="">
+					</section>
+					<section>
+						<h1><strong>IMPORTANTE:</strong><br>Las migraciones son configuración</h1>
+					</section>
+					<section>
+						www/web/modules/custom/charla_demo/charla_demo.install
+						<pre><code class="hljs php">
+function charla_demo_uninstall() {
+  // Remove migration configuration
+  $query = db_select('config', 'c')
+    ->fields('c', array('name'))
+    ->condition('name', db_like('migrate_plus.') . '%', 'LIKE')
+    ->execute();
+
+  $config_names = $query->fetchAll();
+
+  // Delete each config using configFactory.
+  foreach ($config_names as $config_name) {
+    \Drupal::configFactory()->getEditable($config_name->name)->delete();
+  }
+}
+						</code></pre>
+					</section>
+					<section>
+						<pre><code class="hljs bash">
+drush pmu charla_demo && drush en charla_demo
+drush migrate-import upgrade_drupal_7_node_peliculas
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/migrated-with-warning.png" />
+					</section>
+					<section>
+						<img src="/lib/img/films-in-ui.png" alt="">
+					</section>
+					<section data-background-image="https://media.giphy.com/media/26tPghhb310muUkEw/giphy.gif"></section>
+				</section>
+				<section>
+					<section>
+						Vayamos más rápido: migrate_upgrade
+
+						<aside class="notes">
+							Analiza el Drupal 7 y genera plantillas de migraciones (YML) con todos los campos migrados.
+						</aside>
+					</section>
+					<section>
+						Primero vamos a borrar el contenido que ya hemos generado
+						<pre><code class="hljs bash">
+drush migrate-rollback upgrade_drupal_7_node_peliculas
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/rollback.png" alt="">
+					</section>
+					<section>
+<pre><code class="hljs bash">
+composer require drupal/migrate_upgrade
+drush en migrate_upgrade
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/migrate_upgrade_installed.png" alt="">
+					</section>
+					<section>
+drush --yes migrate:upgrade --legacy-db-key migrate --legacy-root /var/www/html-7 --configure-only
+					</section>
+					<section>
+						<img src="/lib/img/migrate_upgrade_executed.png" alt="">
+					</section>
+					<section>
+						<img src="/lib/img/git-changes.png" alt="">
+					</section>
+					<section>
+						<h1><strong>IMPORTANTE:</strong><br>Las migraciones son configuración</h1>
+					</section>
+					<section><pre><code class="hljs bash">
+drush cex -y
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/git-status-1.png" alt="">
+					</section>
+					<section>
+						Movemos las migraciones a nuestro módulo custom
+
+						<pre><code class="hljs bash">
+mv config/sync/migrate_plus.migration* web/modules/custom/charla_demo/config/install/
+						</code></pre>
+					</section>
+					<section>
+						Ejecutamos las migraciones seleccionando el grupo y el tag adecuado.
+						<pre><code class="hljs bash">
+drush migrate-import --group=migrate_drupal_7 --tag=Content
+						</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/migrate_upgrade_migrated_content.png" alt="">
+					</section>
+					<section>
+						<img src="/lib/img/content-in-ui.png" alt="">
+					</section>
+					<section data-background-image="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif">
+					</section>
+					<section>
+						Y todavía hay más :)
+
+						<aside class="notes">
+							Mirar que hay exportaciones de tipo configuración
+						</aside>
+					</section>
+					<section>
+						<p>Ahora vamos a partir de un Drupal recién instalado con migrate y compañía.</p>
+						<aside class="notes">
+Migraremos tanto el contenido como la configuración
+						</aside>
+					</section>
+					<section>
+						<pre><code class="hljs bash">
+drush migrate-import --group=migrate_drupal_7 --tag=Configuration</code></pre>
+					</section>
+					<section>
+						<img src="/lib/img/migrated-config.png" alt="">
+					</section>
+					<section>
+						<pre><code class="hljs bash">
+drush migrate-import --group=migrate_drupal_7 --tag=Content</code></pre>
+					</section>
+					<section data-background-image="https://media.giphy.com/media/yoJC2GnSClbPOkV0eA/giphy.gif"></section>
+				</section>
+				<section>
+					<section><h1>Quiero saber más</h1></section>
+					<section>
+						<p>Dos tablas importantes:</p>
+						<ul>
+							<li>Tablas map</li>
+							<li>Tablas messages</li>
+						</ul>
+					</section>
+					<section>
+						<p>Tres componentes principales</p>
+						<ul>
+							<li>Source</li>
+							<li>Processors</li>
+							<li>Destination</li>
+						</ul>
+					</section>
+					<section>
+						<h1>Source</h1>
+
+						<ul>
+							<li>Tiene una conexión con la base de datos de Drupal 7</li>
+							<li>Define los <em>datos de salida</em></li>
+							<li>Debe proporcionar un identificador único (puede ser compuesto) por cada <em>Row</em></li>
+						</ul>
+					</section>
+					<section>
+						<h1>Ejemplo de Source</h1>
+						<pre><code class="hljs php">
+
+/**
+ * Extends the D7 Node source plugin so we can grab OG info.
+ *
+ * @MigrateSource(
+ *   id = "d7_user_membership",
+ *   source_module = "og"
+ * )
+ */
+class UserMemberships extends DrupalSqlBase {
+
+  /**
+   * Returns available fields on the source.
+   *
+   * @return array
+   *   Available fields in the source, keys are the field machine names as used
+   *   in field mappings, values are descriptions.
+   */
+  public function fields()
+  {
+    return [
+      'gid' => 'The group GID',
+      'etid' => 'The user UID',
+      'rid' => 'The user UID',
+    ];
+  }
+
+  public function getIds()
+  {
+    return [
+      'id' => ['type' => 'integer'],
+    ];
+  }
+
+
+  public function query()
+  {
+    $query = $this->select('og_membership', 'ogm');
+    $query->leftJoin('og_users_roles', 'ogur', 'ogm.etid = ogur.uid AND ogm.gid = ogur.gid');
+
+    $query->fields('ogm', ['id', 'etid', 'gid'])
+      ->fields('ogur', ['rid'])
+      ->condition('ogm.entity_type', 'user');
+
+    return $query;
+  }
+}
+						</code></pre>
+					</section>
+					<section>
+						<h1>Process</h1>
+						<ul>
+							<li>Transforma x en y</li>
+						</ul>
+
+						<p>Ejemplos</p>
+						<ul>
+							<li>migration_lookup</li>
+							<li>static_map</li>
+							<li>flatten</li>
+							<li>get</li>
+							<li>process</li>
+						</ul>
+					</section>
+					<section>
+						<h1>Ejemplo de Process</h1>
+						<pre><code class="hljs php">
+/**
+ * Class GetSingleValue
+ *
+ * @MigrateProcessPlugin(
+ *   id = "get_single_value",
+ *   handle_multiples=TRUE
+ * )
+ */
+class GetSingleValue extends ProcessPluginBase
+{
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property)
+  {
+    $key = $this->configuration['key'];
+
+    if (!is_array($value)) {
+      return $value;
+    }
+
+    if (isset($data[$value])) {
+      return $value[$key];
+    }
+
+    if (isset($value[0]) && isset($value[0][$key])) {
+      return $value[0][$key];
+    }
+
+    return null;
+  }
+}
+
+						</code></pre>
+					</section>
+					<section>
+						<h1>Destination</h1>
+
+						<ul>
+							<li>Tiene una conexión con la base de datos de Drupal 8</li>
+							<li>Define los <em>datos de entrada</em></li>
+							<li>Debe proporcionar un identificador único (puede ser compuesto) por cada <em>Row</em></li>
+						</ul>
+					</section>
+
+					<section>
+						<h1>Ejemplo de Destination</h1>
+						<code>
+							<pre class="hljs php">
+/**
+ * Class GroupUser
+ *
+ *
+ * Links a user with a group
+ *
+ * @MigrateDestination(
+ *   id = "group_user_membership"
+ * )
+ */
+class GroupUserMembership extends DestinationBase
+{
+
+  public function getIds()
+  {
+    return ['id' => ['type' => 'integer']];
+  }
+
+  public function fields(MigrationInterface $migration = NULL)
+  {
+    return [
+      'uid' => 'The user UID',
+      'gid' => 'The group ID',
+      'rid' => 'The group roule ID',
+    ];
+  }
+
+  public function import(Row $row, array $old_destination_id_values = [])
+  {
+    $uid = $row->getDestinationProperty('uid');
+    $gid = $row->getDestinationProperty('gid');
+
+    $group = Group::load($gid);
+    $user = User::load($uid);
+    $group->addMember($user);
+
+    $groupContent = $group->getMember($user)->getGroupContent();
+
+    $roleId = $row->getDestinationProperty('rid');
+    if ($roleId) {
+      $groupContent->group_roles->target_id = $roleId;
+    }
+
+    return [$groupContent->id()];
+  }
+
+  public function rollback(array $destination_identifier)
+  {
+    $groupContent = GroupContent::load($destination_identifier['id']);
+    if ($groupContent) {
+      $groupContent->delete();
+    }
+  }
+}
+							</pre>
+						</code>
+					</section>
+					<section>
+						<h1>Cómo meter mano a la migración</h1>
+						<ul>
+							<li>hook_migrate_prepare_row</li>
+							<li>Eventos: <ul>
+								<li>\Drupal\migrate\Event\MigratePreRowSaveEvent</li>
+								<li>\Drupal\migrate\Event\MigrateImportEvent</li>
+							</ul></li>
+						</ul>
+					</section>
+					<section>
+						<h1>A la hora de hacer deploy</h1>
+						<ul>
+							<li>Ejecutamos la migración</li>
+							<li>Añadimos el contenido propio de la nueva versión (migrate_default_content)</li>
+							<li>Ejecitamos un comando después de la migración</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<p>Recursos</p>
+
+					<ul>
+						<li><a href="https://www.lullabot.com/articles/overview-migrating-drupal-sites-8">An Overview for Migrating Drupal Sites to 8 </a></li>
+						<li><a href="https://www.drupal.org/docs/8/api/migrate-api/migrate-api-overview">Migrate API overview</a></li>
+					</ul>
 				</section>
 			</div>
 		</div>
